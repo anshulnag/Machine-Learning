@@ -31,7 +31,7 @@ weights /=np.sum(weights)
 print(weights)
 
 #monte carlo method
-mc_sims=100#number of simulations
+mc_sims=2000#number of simulations
 T=100#timeframe in days
 
 meanM=np.full(shape=(T,len(weights)), fill_value=meanReturns)
@@ -40,5 +40,17 @@ meanM=meanM.T
 
 portfolio_sims=np.full(shape=(T,mc_sims),fill_value=0.0)
 
+initialPortfolio=10000
 for m in range(0,mc_sims):
+    #MCloop
+    Z=np.random.normal(size=(T,len(weights)))
+    L=np.linalg.cholesky(covMatrix)
+    dailyReturns=meanM+np.inner(L,Z)
+    portfolio_sims[:,m]=np.cumprod(np.inner(weights,dailyReturns.T)+1)*initialPortfolio
     
+plt.plot(portfolio_sims)
+plt.ylabel('Portfolio value($)')
+plt.xlabel('Days')
+plt.axhline(initialPortfolio, color='black')
+plt.title('MC simulation of a stock portfolio')
+plt.show()
